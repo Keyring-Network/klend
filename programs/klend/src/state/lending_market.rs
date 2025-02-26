@@ -94,20 +94,29 @@ pub struct LendingMarket {
     pub min_value_skip_liquidation_bf_checks: u64,
 
     pub individual_autodeleverage_margin_call_period_secs: u64,
-
+    
     pub min_initial_deposit_amount: u64,
+    
+    pub is_permissioned: u8,
 
     #[cfg_attr(
         feature = "serde",
-        serde(skip_deserializing, skip_serializing, default = "default_padding_170")
+        serde(skip_deserializing, skip_serializing, default)
     )]
     #[derivative(Debug = "ignore")]
-    pub padding1: [u64; 170],
+    pub reserved2: [u8; 7],
+
+    #[cfg_attr(
+        feature = "serde",
+        serde(skip_deserializing, skip_serializing, default = "default_padding_169")
+    )]
+    #[derivative(Debug = "ignore")]
+    pub padding1: [u64; 169],
 }
 
 #[cfg(feature = "serde")]
-fn default_padding_170() -> [u64; 170] {
-    [0; 170]
+fn default_padding_169() -> [u64; 169] {
+    [0; 169]
 }
 
 #[cfg(feature = "serde")]
@@ -120,6 +129,7 @@ impl Default for LendingMarket {
         Self {
             version: 0,
             bump_seed: 0,
+            is_permissioned: 0,
             lending_market_owner: Pubkey::default(),
             risk_council: Pubkey::default(),
             quote_currency: [0; 32],
@@ -134,6 +144,7 @@ impl Default for LendingMarket {
             min_full_liquidation_value_threshold: LIQUIDATION_CLOSE_VALUE,
             reserved0: [0; 8],
             reserved1: [0; 8],
+            reserved2: [0; 7],
             referral_fee_bps: 0,
             price_refresh_trigger_to_max_age_pct: 0,
             elevation_groups: [ElevationGroup::default(); 32],
@@ -144,7 +155,7 @@ impl Default for LendingMarket {
             name: [0; 32],
             individual_autodeleverage_margin_call_period_secs: 0,
             min_initial_deposit_amount: DEFAULT_MIN_DEPOSIT_AMOUNT,
-            padding1: [0; 170],
+            padding1: [0; 169],
         }
     }
 }

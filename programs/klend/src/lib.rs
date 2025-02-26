@@ -112,9 +112,10 @@ pub mod kamino_lending {
     #[access_control(emergency_mode_disabled(&ctx.accounts.lending_market))]
     pub fn deposit_reserve_liquidity(
         ctx: Context<DepositReserveLiquidity>,
+        policy_id: u64,
         liquidity_amount: u64,
     ) -> Result<()> {
-        handler_deposit_reserve_liquidity::process(ctx, liquidity_amount)
+        handler_deposit_reserve_liquidity::process(ctx, policy_id, liquidity_amount)
     }
 
     #[access_control(emergency_mode_disabled(&ctx.accounts.lending_market))]
@@ -267,10 +268,12 @@ pub mod kamino_lending {
     #[access_control(emergency_mode_disabled(&ctx.accounts.deposit_accounts.lending_market))]
     pub fn deposit_reserve_liquidity_and_obligation_collateral_v2(
         ctx: Context<DepositReserveLiquidityAndObligationCollateralV2>,
+        policy_id: u64,
         liquidity_amount: u64,
     ) -> Result<()> {
         handler_deposit_reserve_liquidity_and_obligation_collateral::process_v2(
             ctx,
+            policy_id,
             liquidity_amount,
         )
     }

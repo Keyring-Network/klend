@@ -1090,7 +1090,7 @@ checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 [[package]]
 name = "farms"
 version = "0.1.0"
-source = "git+https://github.com/Kamino-Finance/kfarms.git#e74f8f0f8032140ee4f067b15d06a1999326d5c4"
+source = "git+https://github.com/Kamino-Finance/kfarms.git#8ee208e49b42b9725c45363a620ea363b78388a7"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
@@ -1430,6 +1430,7 @@ dependencies = [
  "farms",
  "fixed",
  "fixed-macro",
+ "keyring-network",
  "num_enum 0.7.1",
  "pyth-solana-receiver-sdk",
  "sbod-itf",
@@ -1450,6 +1451,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f6d5ed8676d904364de097082f4e7d240b571b67989ced0240f08b7f966f940"
 dependencies = [
  "cpufeatures",
+]
+
+[[package]]
+name = "keyring-network"
+version = "0.1.0"
+source = "git+https://github.com/Keyring-Network/keyring-smart-contracts-solana.git#86b435a331c5cf2ae53206df723179f85d6f3e42"
+dependencies = [
+ "anchor-lang",
+ "log",
+ "solana-security-txt",
 ]
 
 [[package]]
@@ -1536,9 +1547,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.20"
+version = "0.4.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
+checksum = "04cbf5b083de1c7e0222a7a51dbfdba1cbe1c6ab0b15e29fff3f6c077fd9cd9f"
 
 [[package]]
 name = "memchr"

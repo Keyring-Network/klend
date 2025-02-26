@@ -39,6 +39,7 @@ scope = { git = "https://github.com/Kamino-Finance/scope.git", package = "scope-
 pyth-solana-receiver-sdk = "0.3.1"
 
 farms = { git = "https://github.com/Kamino-Finance/kfarms.git", features = ["no-entrypoint"] }
+keyring-network = { git = "https://github.com/Keyring-Network/keyring-smart-contracts-solana.git", features = ["no-entrypoint"] }
 
 derivative = "2.2.0"
 num_enum = "0.7.0"

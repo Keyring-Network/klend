@@ -7,7 +7,7 @@ use anchor_spl::{
     token::Token,
     token_interface::{self, Mint, TokenAccount, TokenInterface},
 };
-
+use keyring_network::common::types::EntityData;
 use crate::{
     check_refresh_ixs, gen_signer_seeds,
     handler_refresh_obligation_farms_for_reserve::*,
@@ -17,6 +17,7 @@ use crate::{
     utils::{seeds, token_transfer},
     DepositLiquidityResult, LendingAction, MaxReservesAsCollateralCheck, ReserveFarmKind,
 };
+use crate::lending_market::keyring_ixs::check_keyring_credentials;
 
 pub fn process_v1(
     ctx: Context<DepositReserveLiquidityAndObligationCollateral>,
@@ -36,8 +37,15 @@ pub fn process_v1(
 
 pub fn process_v2(
     ctx: Context<DepositReserveLiquidityAndObligationCollateralV2>,
+    policy_id: u64,
     liquidity_amount: u64,
 ) -> Result<()> {
+    let lending_market = ctx.accounts.deposit_accounts.lending_market.load()?;
+    if lending_market.is_permissioned != 0 {
+        check_keyring_credentials(ctx.accounts.keyring_program.key(), &ctx.accounts.deposit_accounts.owner, &ctx.accounts.entity_mapping, policy_id)?;
+    }
+    
+    
     process_impl(
         &ctx.accounts.deposit_accounts,
         liquidity_amount,
@@ -195,8 +203,18 @@ pub struct DepositReserveLiquidityAndObligationCollateral<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(policy_id: u64)]
 pub struct DepositReserveLiquidityAndObligationCollateralV2<'info> {
     pub deposit_accounts: DepositReserveLiquidityAndObligationCollateral<'info>,
     pub farms_accounts: OptionalObligationFarmsAccounts<'info>,
     pub farms_program: Program<'info, farms::program::Farms>,
+    
+    #[account(
+        seeds = [b"keyring_program".as_ref(), b"_entity_mapping".as_ref(), &policy_id.to_le_bytes(), &deposit_accounts.owner.key.to_bytes()],
+        bump,
+        seeds::program = keyring_program,
+    )]
+    pub entity_mapping: Account<'info, EntityData>,
+    
+    pub keyring_program: Program<'info, keyring_network::program::KeyringNetwork>,
 }

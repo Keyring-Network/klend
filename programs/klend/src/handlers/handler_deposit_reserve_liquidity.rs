@@ -7,6 +7,7 @@ use anchor_spl::{
     token::Token,
     token_interface::{self, Mint, TokenAccount, TokenInterface},
 };
+use keyring_network::common::types::EntityData;
 use lending_operations::refresh_reserve;
 
 use crate::{
@@ -16,8 +17,14 @@ use crate::{
     utils::{seeds, token_transfer},
     DepositLiquidityResult, LendingAction,
 };
+use crate::lending_market::keyring_ixs::check_keyring_credentials;
 
-pub fn process(ctx: Context<DepositReserveLiquidity>, liquidity_amount: u64) -> Result<()> {
+pub fn process(ctx: Context<DepositReserveLiquidity>, policy_id: u64, liquidity_amount: u64) -> Result<()> {
+    let lending_market = ctx.accounts.lending_market.load()?;
+    if lending_market.is_permissioned != 0 {
+        check_keyring_credentials(ctx.accounts.keyring_program.key(), &ctx.accounts.owner, &ctx.accounts.entity_mapping, policy_id)?;
+    }
+    
     lending_checks::deposit_reserve_liquidity_checks(
         &crate::state::nested_accounts::DepositReserveLiquidityAccounts {
             lending_market: ctx.accounts.lending_market.clone(),
@@ -87,6 +94,7 @@ pub fn process(ctx: Context<DepositReserveLiquidity>, liquidity_amount: u64) -> 
 }
 
 #[derive(Accounts)]
+#[instruction(policy_id: u64)]
 pub struct DepositReserveLiquidity<'info> {
     pub owner: Signer<'info>,
 
@@ -130,4 +138,13 @@ pub struct DepositReserveLiquidity<'info> {
 
     #[account(address = SysInstructions::id())]
     pub instruction_sysvar_account: AccountInfo<'info>,
+
+    #[account(
+        seeds = [b"keyring_program".as_ref(), b"_entity_mapping".as_ref(), &policy_id.to_le_bytes(), &owner.key.to_bytes()],
+        bump,
+        seeds::program = keyring_program,
+    )]
+    pub entity_mapping: Account<'info, EntityData>,
+    
+    pub keyring_program: Program<'info, keyring_network::program::KeyringNetwork>,
 }
