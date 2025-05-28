@@ -221,6 +221,7 @@ pub enum UpdateLendingMarketMode {
     UpdateName = 19,
     UpdateIndividualAutodeleverageMarginCallPeriodSecs = 20,
     UpdateInitialDepositAmount = 21,
+    UpdateKeyringProgram = 22,
 }
 
 #[cfg(feature = "serde")]

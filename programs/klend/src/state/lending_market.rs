@@ -94,9 +94,10 @@ pub struct LendingMarket {
     pub min_value_skip_liquidation_bf_checks: u64,
 
     pub individual_autodeleverage_margin_call_period_secs: u64,
-    
+
     pub min_initial_deposit_amount: u64,
-    
+
+    #[cfg_attr(feature = "serde", serde(with = "serde_bool_u8"))]
     pub is_permissioned: u8,
 
     #[cfg_attr(
@@ -106,17 +107,21 @@ pub struct LendingMarket {
     #[derivative(Debug = "ignore")]
     pub reserved2: [u8; 7],
 
+    pub policy_id: u64,
+
+    pub keyring_program: Pubkey,
+
     #[cfg_attr(
         feature = "serde",
-        serde(skip_deserializing, skip_serializing, default = "default_padding_169")
+        serde(skip_deserializing, skip_serializing, default = "default_padding_164")
     )]
     #[derivative(Debug = "ignore")]
-    pub padding1: [u64; 169],
+    pub padding1: [u64; 164],
 }
 
 #[cfg(feature = "serde")]
-fn default_padding_169() -> [u64; 169] {
-    [0; 169]
+fn default_padding_164() -> [u64; 164] {
+    [0; 164]
 }
 
 #[cfg(feature = "serde")]
@@ -129,7 +134,6 @@ impl Default for LendingMarket {
         Self {
             version: 0,
             bump_seed: 0,
-            is_permissioned: 0,
             lending_market_owner: Pubkey::default(),
             risk_council: Pubkey::default(),
             quote_currency: [0; 32],
@@ -144,7 +148,6 @@ impl Default for LendingMarket {
             min_full_liquidation_value_threshold: LIQUIDATION_CLOSE_VALUE,
             reserved0: [0; 8],
             reserved1: [0; 8],
-            reserved2: [0; 7],
             referral_fee_bps: 0,
             price_refresh_trigger_to_max_age_pct: 0,
             elevation_groups: [ElevationGroup::default(); 32],
@@ -155,7 +158,11 @@ impl Default for LendingMarket {
             name: [0; 32],
             individual_autodeleverage_margin_call_period_secs: 0,
             min_initial_deposit_amount: DEFAULT_MIN_DEPOSIT_AMOUNT,
-            padding1: [0; 169],
+            is_permissioned: 0,
+            reserved2: [0; 7],
+            policy_id: 0,
+            keyring_program: Pubkey::default(),
+            padding1: [0; 164],
         }
     }
 }
@@ -167,6 +174,16 @@ impl LendingMarket {
         self.bump_seed = params.bump_seed as u64;
         self.lending_market_owner = params.lending_market_owner;
         self.quote_currency = params.quote_currency;
+    }
+
+    pub fn init_permissioned(&mut self, params: InitLendingMarketPermissionedParams) {
+        *self = Self::default();
+        self.version = PROGRAM_VERSION as u64;
+        self.bump_seed = params.bump_seed as u64;
+        self.lending_market_owner = params.lending_market_owner;
+        self.quote_currency = params.quote_currency;
+        self.policy_id = params.policy_id;
+        self.keyring_program = params.keyring_program;
     }
 
     pub fn get_elevation_group(
@@ -207,6 +224,14 @@ pub struct InitLendingMarketParams {
     pub bump_seed: u8,
     pub lending_market_owner: Pubkey,
     pub quote_currency: [u8; 32],
+}
+
+pub struct InitLendingMarketPermissionedParams {
+    pub bump_seed: u8,
+    pub lending_market_owner: Pubkey,
+    pub quote_currency: [u8; 32],
+    pub policy_id: u64,
+    pub keyring_program: Pubkey,
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Derivative, PartialEq, Eq)]

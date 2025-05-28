@@ -13,7 +13,9 @@ use anchor_spl::{
 use crate::{
     check_refresh_ixs, gen_signer_seeds,
     handler_refresh_obligation_farms_for_reserve::*,
-    lending_market::{lending_checks, lending_operations},
+    lending_market::{
+        keyring_credential_checker::check_keyring_credentials, lending_checks, lending_operations,
+    },
     refresh_farms,
     state::{obligation::Obligation, LendingMarket, RedeemReserveCollateralAccounts, Reserve},
     utils::{seeds, token_transfer, FatAccountLoader},
@@ -48,6 +50,16 @@ pub fn process_v2(
     min_acceptable_received_liquidity_amount: u64,
     max_allowed_ltv_override_percent: u64,
 ) -> Result<()> {
+    let lending_market = ctx.accounts.liquidation_accounts.lending_market.load()?;
+    if lending_market.is_permissioned != 0 {
+        check_keyring_credentials(
+            lending_market.policy_id,
+            lending_market.keyring_program,
+            ctx.accounts.liquidation_accounts.liquidator.key(),
+            &ctx.remaining_accounts[0],
+        )?;
+    }
+
     process_impl(
         &ctx.accounts.liquidation_accounts,
         ctx.remaining_accounts,

@@ -3,16 +3,28 @@ use anchor_spl::token_interface::{self, Mint, TokenAccount, TokenInterface};
 
 use crate::{
     gen_signer_seeds,
-    lending_market::{flash_ixs, lending_checks, lending_operations},
+    lending_market::{
+        flash_ixs, keyring_credential_checker::check_keyring_credentials, lending_checks,
+        lending_operations,
+    },
     state::{LendingMarket, Reserve},
     utils::{seeds, token_transfer},
     LendingAction, ReferrerTokenState,
 };
 
 pub fn process(ctx: Context<FlashBorrowReserveLiquidity>, liquidity_amount: u64) -> Result<()> {
+    let lending_market = &ctx.accounts.lending_market.load()?;
+    if lending_market.is_permissioned != 0 {
+        check_keyring_credentials(
+            lending_market.policy_id,
+            lending_market.keyring_program,
+            ctx.accounts.user_transfer_authority.key(),
+            &ctx.remaining_accounts[0],
+        )?;
+    }
+
     lending_checks::flash_borrow_reserve_liquidity_checks(&ctx)?;
     let reserve = &mut ctx.accounts.reserve.load_mut()?;
-    let lending_market = &ctx.accounts.lending_market.load()?;
     let lending_market_key = ctx.accounts.lending_market.key();
     let authority_signer_seeds =
         gen_signer_seeds!(lending_market_key, lending_market.bump_seed as u8);

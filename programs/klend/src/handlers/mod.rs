@@ -8,6 +8,7 @@ pub mod handler_flash_borrow_reserve_liquidity;
 pub mod handler_flash_repay_reserve_liquidity;
 pub mod handler_init_farms_for_reserve;
 pub mod handler_init_lending_market;
+pub mod handler_init_lending_market_permissioned;
 pub mod handler_init_obligation;
 pub mod handler_init_obligation_farms_for_reserve;
 pub mod handler_init_referrer_state_and_short_url;

@@ -25,8 +25,7 @@ solana_security_txt::security_txt! {
     project_url: "https://kamino.finance/",
     contacts: "email:security@kamino.finance",
     policy: "https://github.com/Kamino-Finance/audits/blob/master/docs/SECURITY.md",
-
-       preferred_languages: "en",
+    preferred_languages: "en",
     auditors: "OtterSec, Offside Labs"
 }
 
@@ -39,6 +38,20 @@ pub mod kamino_lending {
         quote_currency: [u8; 32],
     ) -> Result<()> {
         handler_init_lending_market::process(ctx, quote_currency)
+    }
+
+    pub fn init_lending_market_permissioned(
+        ctx: Context<InitLendingMarket>,
+        quote_currency: [u8; 32],
+        policy_id: u64,
+        keyring_program: Pubkey,
+    ) -> Result<()> {
+        handler_init_lending_market_permissioned::process(
+            ctx,
+            quote_currency,
+            policy_id,
+            keyring_program,
+        )
     }
 
     pub fn update_lending_market(
@@ -112,10 +125,9 @@ pub mod kamino_lending {
     #[access_control(emergency_mode_disabled(&ctx.accounts.lending_market))]
     pub fn deposit_reserve_liquidity(
         ctx: Context<DepositReserveLiquidity>,
-        policy_id: u64,
         liquidity_amount: u64,
     ) -> Result<()> {
-        handler_deposit_reserve_liquidity::process(ctx, policy_id, liquidity_amount)
+        handler_deposit_reserve_liquidity::process(ctx, liquidity_amount)
     }
 
     #[access_control(emergency_mode_disabled(&ctx.accounts.lending_market))]
@@ -268,12 +280,10 @@ pub mod kamino_lending {
     #[access_control(emergency_mode_disabled(&ctx.accounts.deposit_accounts.lending_market))]
     pub fn deposit_reserve_liquidity_and_obligation_collateral_v2(
         ctx: Context<DepositReserveLiquidityAndObligationCollateralV2>,
-        policy_id: u64,
         liquidity_amount: u64,
     ) -> Result<()> {
         handler_deposit_reserve_liquidity_and_obligation_collateral::process_v2(
             ctx,
-            policy_id,
             liquidity_amount,
         )
     }
@@ -661,6 +671,10 @@ pub enum LendingError {
     RepayTooSmallForFullLiquidation,
     #[msg("Liquidator provided repay amount lower than required by liquidation rules")]
     InsufficientRepayAmount,
+    #[msg("Invalid entity mapping account passed")]
+    InvalidEntityMappingAccountPassed,
+    #[msg("Invalid credentials")]
+    InvalidCredentials,
 }
 
 pub type LendingResult<T = ()> = std::result::Result<T, LendingError>;

@@ -1456,7 +1456,7 @@ dependencies = [
 [[package]]
 name = "keyring-network"
 version = "0.1.0"
-source = "git+https://github.com/Keyring-Network/keyring-smart-contracts-solana.git#86b435a331c5cf2ae53206df723179f85d6f3e42"
+source = "git+https://github.com/Keyring-Network/keyring-smart-contracts-solana.git?rev=0727f314079b1e6c30da5e2cfcf190bf431d6cfe#0727f314079b1e6c30da5e2cfcf190bf431d6cfe"
 dependencies = [
  "anchor-lang",
  "log",

@@ -285,6 +285,13 @@ pub fn process(
             }
             *current_value = new_value;
         }
+        UpdateLendingMarketMode::UpdateKeyringProgram => {
+            let value: [u8; 32] = value[0..32].try_into().unwrap();
+            let value = Pubkey::from(value);
+            msg!("Prv value is {:?}", market.keyring_program);
+            msg!("New value is {:?}", value);
+            market.keyring_program = value;
+        }
     }
 
     Ok(())

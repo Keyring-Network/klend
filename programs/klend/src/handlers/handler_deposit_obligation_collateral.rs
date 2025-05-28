@@ -9,7 +9,9 @@ use super::OptionalObligationFarmsAccounts;
 use crate::{
     check_refresh_ixs,
     handler_refresh_obligation_farms_for_reserve::*,
-    lending_market::{lending_checks, lending_operations},
+    lending_market::{
+        keyring_credential_checker::check_keyring_credentials, lending_checks, lending_operations,
+    },
     refresh_farms,
     state::{obligation::Obligation, DepositObligationCollateralAccounts, LendingMarket, Reserve},
     utils::{seeds, token_transfer},
@@ -29,6 +31,16 @@ pub fn process_v2(
     ctx: Context<DepositObligationCollateralV2>,
     collateral_amount: u64,
 ) -> Result<()> {
+    let lending_market = &ctx.accounts.deposit_accounts.lending_market.load()?;
+    if lending_market.is_permissioned != 0 {
+        check_keyring_credentials(
+            lending_market.policy_id,
+            lending_market.keyring_program,
+            ctx.accounts.deposit_accounts.owner.key(),
+            &ctx.remaining_accounts[0],
+        )?;
+    }
+
     process_impl(&ctx.accounts.deposit_accounts, collateral_amount)?;
     refresh_farms!(
         ctx.accounts.deposit_accounts,
