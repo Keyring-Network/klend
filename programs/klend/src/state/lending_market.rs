@@ -182,6 +182,7 @@ impl LendingMarket {
         self.bump_seed = params.bump_seed as u64;
         self.lending_market_owner = params.lending_market_owner;
         self.quote_currency = params.quote_currency;
+        self.is_permissioned = 1;
         self.policy_id = params.policy_id;
         self.keyring_program = params.keyring_program;
     }
